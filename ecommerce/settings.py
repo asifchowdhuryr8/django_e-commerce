@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'category.apps.CategoryConfig'
+    'category.apps.CategoryConfig',
+    'account.apps.AccountConfig'
 ]
 
 MIDDLEWARE = [
@@ -72,6 +73,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ecommerce.wsgi.application'
 
+AUTH_USER_MODEL = 'account.Account' # Informing django to use this model for user authentication
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
