@@ -13,7 +13,7 @@ class Category(models.Model):
         return self.name
 
     def get_slug_url(self):
-        return reverse('store:products_by_category', args=[self.slug])
+        return reverse('store:products-by-category', args=[self.slug])
 
     class Meta:
         verbose_name = 'category'

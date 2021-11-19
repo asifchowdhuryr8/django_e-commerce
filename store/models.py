@@ -1,5 +1,7 @@
 from django.db import models
 from category.models import Category
+from django.urls import reverse
+
 
 class Product(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -18,3 +20,9 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_single_product_url(self):
+        return reverse('store:product-detail', args=[self.category.slug, self.slug])
+    # You can use this mehtod if you don't want to use product.category.slug syntax in the template. just use product.get_single_product_url in the href attribute of the link.
+
+    # I have used product.category.slug product.slug syntax in the index file and get_single_product_url syntax in the store.html file
