@@ -17,7 +17,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES_FILES = BASE_DIR / "templates"
 
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
@@ -59,7 +58,7 @@ ROOT_URLCONF = 'ecommerce.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATES_FILES,],
+        'DIRS': [TEMPLATES_FILES, ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -67,6 +66,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # Now categories dict is available in all template file
+                'category.context_processors.category_list',
             ],
         },
     },
@@ -74,7 +75,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ecommerce.wsgi.application'
 
-AUTH_USER_MODEL = 'account.Account' # Informing django to use this model for user authentication
+# Informing django to use this model for user authentication
+AUTH_USER_MODEL = 'account.Account'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
