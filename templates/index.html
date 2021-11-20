@@ -31,10 +31,27 @@
                         <img src="{{product.image.url}}" />
                     </a>
                     <figcaption class="info-wrap">
-                        <a href="./product-detail.html" class="title"
-                            >{{product.name}}</a
-                        >
-                        <div class="price mt-1">{{product.price}}</div>
+                        <div class="fix-height">
+                            <a
+                                href="{{product.get_single_product_url}}"
+                                class="title"
+                                >{{product.name}}</a
+                            >
+                            <div class="price-wrap mt-2">
+                                <span class="price"> {{product.price}} </span>
+                            </div>
+                        </div>
+                        {% if product.stock %}
+                        <a
+                            href="{% url 'cart:add_cart' product.id %}"
+                            class="btn btn-block btn-success"
+                            >Added to cart
+                        </a>
+                        {% else %}
+                        <button class="btn btn-block btn-info">
+                            Out of stock
+                        </button>
+                        {% endif %}
                     </figcaption>
                 </div>
             </div>

@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'category.apps.CategoryConfig',
     'account.apps.AccountConfig',
-    'store.apps.StoreConfig'
+    'store.apps.StoreConfig',
+    'cart.apps.CartConfig',
 ]
 
 MIDDLEWARE = [
@@ -68,6 +69,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 # Now categories dict is available in all template file
                 'category.context_processors.category_list',
+                'cart.context_processors.cart_count',
             ],
         },
     },
