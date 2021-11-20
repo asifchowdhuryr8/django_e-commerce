@@ -101,7 +101,7 @@
                             </div>
                         </div>
                         <hr />
-						{% if product.stock > 0 %}
+						{% if product.stock < 1 %}
 						<h3> Out of Stock</h5>
 						{% else %}
                         <a href="./product-detail.html" class="btn btn-primary">
