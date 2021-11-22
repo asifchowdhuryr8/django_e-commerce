@@ -3,6 +3,7 @@ from .models import Product
 from category.models import Category
 from cart.models import CartItem
 from cart.views import get_or_set_session_id
+from django.core.paginator import Paginator
 # Create your views here.
 
 
@@ -14,9 +15,17 @@ def store(request, slug_value=None):
         products = Product.objects.filter(
             category=categories, is_available=True)
         total_product = products.count()
+        paginator = Paginator(products, 6)
+        page = request.GET.get('page')
+        # get the page variable value from the url
+        products = paginator.get_page(page)
+        # now products variable is a paginator object. It has all the products in it which is coming from filter method But will render accordingly paginator.
     else:
         products = Product.objects.all().filter(is_available=True)
         total_product = products.count()
+        paginator = Paginator(products, 6)
+        page = request.GET.get('page')
+        products = paginator.get_page(page)
 
     context = {'products': products, 'total_product': total_product}
     return render(request, 'store/store.html', context)
