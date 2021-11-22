@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from store.models import Product
 from .models import Cart, CartItem
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def get_or_set_session_id(request):
@@ -65,6 +66,8 @@ def remove_cart_item(request, product_id):
 
 def cart(request, total=0, quantity=0, cart_items=None):
     try:
+        tax = 0
+        grand_total = 0
         cart = Cart.objects.get(cart_id=get_or_set_session_id(request))
         # get all the cart items which has same cart id and is active.
         cart_items = CartItem.objects.filter(cart=cart, is_active=True)
