@@ -176,17 +176,11 @@
                                         </span>
                                     </div>
                                 </div>
-                                {% if product.stock %}
                                 <a
-                                    href="{% url 'cart:add_cart' product.id %}"
-                                    class="btn btn-block btn-success"
-                                    >Added to cart
+                                    href="{% url 'store:product-detail' product.category.slug product.slug %}"
+                                    class="btn btn-block btn-primary"
+                                    >View Product
                                 </a>
-                                {% else %}
-                                <button class="btn btn-block btn-info">
-                                    Out of stock
-                                </button>
-                                {% endif %}
                             </figcaption>
                         </figure>
                     </div>
