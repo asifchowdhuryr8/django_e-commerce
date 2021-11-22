@@ -51,13 +51,24 @@
                     >Store</a
                 >
                 <div class="col-lg col-md-6 col-sm-12 col">
-                    <form action="#" class="search">
+                    <form
+                        action="{% url 'store:search' %}"
+                        method="GET"
+                        class="search"
+                    >
+                        {% comment %} send the user to the store route. I have
+                        to set it because if a user search from home page then
+                        it should redirect the user to store page. If I do not
+                        set it then it'll send the user to that page where he
+                        made the search. NOTE: Don't need {% csrf_token %}
+                        because it's not a post request. {% endcomment %}
                         <div class="input-group w-100">
                             <input
                                 type="text"
                                 class="form-control"
                                 style="width: 60%"
                                 placeholder="Search"
+                                name="keyword"
                             />
 
                             <div class="input-group-append">

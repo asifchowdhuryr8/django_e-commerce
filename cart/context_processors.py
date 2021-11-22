@@ -4,7 +4,7 @@ from .views import get_or_set_session_id
 
 def cart_count(request):
     cart_count = 0
-    if 'admin' in request.path:
+    if 'admin' in request.path:  # If there is admin word in url pattern like: http: // 127.0.0.1: 8000/admin/
         return {}   # no need to count the cart if we're in the admin section
     else:
         try:
