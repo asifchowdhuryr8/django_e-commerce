@@ -1,5 +1,5 @@
-from django.shortcuts import get_object_or_404, redirect, render
-from store.models import Product
+from django.shortcuts import get_object_or_404, redirect, render, HttpResponse
+from store.models import Product, Variation
 from .models import Cart, CartItem
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -14,7 +14,23 @@ def get_or_set_session_id(request):
 
 
 def add_cart(request, product_id):
+
     product = Product.objects.get(id=product_id)    # get the product
+    product_variation = []
+    if request.method == 'POST':
+        for item in request.POST:   # Loop through the request.POST
+            key = item  # get the key.
+            value = request.POST[key]   # get the value.
+            # If ?color=red&size=M then key will be color and value will be red. second time key will be size and value will be M and so on. If there are any other query string parameters then they will be added to like csrf token.
+
+            try:
+                variation = Variation.objects.get(
+                    product=product, variation__iexact=key, variation_value__iexact=value)
+                # Making sure that variation get the exact product which has this exact key and value.
+                product_variation.append(variation)
+                print(variation)
+            except:
+                pass
 
     try:
         cart = Cart.objects.get(cart_id=get_or_set_session_id(
