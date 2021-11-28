@@ -44,8 +44,11 @@
                                                 >{{cart_item.product.name}}</a
                                             >
                                             <p class="text-muted small">
-                                                Color: 25 Mpx <br />
-                                                Size: Canon
+                                                {% if cart_item.variation.all %}
+                                                    {% for item in cart_item.variation.all %}
+                                                        {{item.variation | capfirst}}: {{item.variation_value | capfirst}} <br />
+                                                    {% endfor %}
+                                                {% endif %}
                                             </p>
                                         </figcaption>
                                     </figure>
@@ -58,7 +61,7 @@
                                                     class="btn btn-light"
                                                     type="button"
                                                     id="button-plus"
-                                                    href="{% url 'cart:decrease_cart_item_quantity' cart_item.product.id %}"
+                                                    href="{% url 'cart:decrease_cart_item_quantity' cart_item.product.id cart_item.id%}"
                                                 >
                                                     <i class="fa fa-minus"></i>
                                                 </a>
@@ -69,14 +72,19 @@
                                                 value="{{cart_item.quantity}}"
                                             />
                                             <div class="input-group-append">
-                                                <a
+                                            <form action="{% url 'cart:add_cart' cart_item.product.id %}" method="post">
+                                            {% csrf_token %}
+                                            {% for item in cart_item.variation.all %}
+                                                <input type="hidden" name="{{item.variation | lower}}" value="{{item.variation_value | capfirst}}" />
+                                            {% endfor %}
+                                                <button
                                                     class="btn btn-light"
-                                                    type="button"
+                                                    type="submit"
                                                     id="button-minus"
-                                                    href="{% url 'cart:add_cart' cart_item.product.id %}"
                                                 >
                                                     <i class="fa fa-plus"></i>
-                                                </a>
+                                                </button>
+                                            </form>
                                             </div>
                                         </div>
                                     </div>
@@ -93,8 +101,9 @@
                                 </td>
                                 <td class="text-right">
                                     <a
-                                        href="{% url 'cart:remove_cart_item' cart_item.product.id %}"
+                                        href="{% url 'cart:remove_cart_item' cart_item.product.id cart_item.id%}"
                                         class="btn btn-danger"
+                                        onclick="return confirm('Are you sure you want to delete this item?')"
                                     >
                                         Remove</a
                                     >
