@@ -1,6 +1,6 @@
 {% extends 'base.html' %} {% load static %} {% block body %}
 
-<div class="card mx-auto" style="max-width: 520px; margin-top: 40px">
+<div class="card" style="max-width: 520px; margin: 40px auto">
     <article class="card-body">
         {% include 'django_messages.html' %}
         {% comment %}
@@ -25,6 +25,7 @@
 			</div>
         </form>
     </article>
+    <p class="text-center mb-4">Don't have an account <a href="{% url 'account:login' %}">Sign in</a></p>
 </div>
 
 {% endblock body %}
