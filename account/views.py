@@ -24,6 +24,8 @@ def register(request):
             return redirect('account:register')
         else:
             messages.info(request, 'An error occurred during registration.')
-    form = RegistrationForm()
+    else:
+        # Use it inside the else block otherwise field errors will not work in template file
+        form = RegistrationForm()
     context = {'form': form}
     return render(request, "account/register.html", context)

@@ -1,5 +1,6 @@
 # start server from vs code and run this file from another vs code
 from selenium import webdriver
+import time
 
 firefox_driver_path = "S:/software_install_package/Firefox Web Driver/geckodriver"
 driver = webdriver.Firefox(executable_path=firefox_driver_path)
@@ -30,4 +31,5 @@ confirm_password.send_keys("My_Password_123")
 add = driver.find_element_by_id("register")
 add.click()
 
-# driver.close()
+time.sleep(5)
+driver.close()
