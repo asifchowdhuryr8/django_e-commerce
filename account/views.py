@@ -5,6 +5,14 @@ from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
 # Create your views here.
 
+# User Account Activation
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import EmailMessage
+
 
 def register(request):
     if request.method == "POST":
@@ -21,8 +29,20 @@ def register(request):
             # I have not added phone_number argument in the create_user method of the Account class. That's why I have to add it here manually after creating the user.
             user.phone_number = phone_number
             user.save()
-            messages.success(request, 'You have successfully registered!')
-            return redirect('account:register')
+
+            # Send email to the user to activate the account
+            current_site = get_current_site(request)
+            subject = 'Activate Your Account'
+            message = render_to_string('account/account_activation_email.html', {
+                'user': user,
+                'domain': current_site,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': default_token_generator.make_token(user),
+            })
+            to_email = email
+            send_mail = EmailMessage(subject, message, to=[to_email])
+            send_mail.send()
+            return redirect('/account/login/?verify=email_verification&email='+email)
         else:
             messages.info(request, 'An error occurred during registration.')
     else:
@@ -46,7 +66,8 @@ def login(request):
             auth.login(request, user)
             return redirect('category:homepage')
         else:   # If user is None, then the user does not exist in the database
-            messages.warning(request, 'Invalid credentials')
+            messages.warning(
+                request, 'Invalid credentials either your given details is incorrect or your account is not activated yet.')
             return redirect('account:login')
     return render(request, "account/login.html")
 
@@ -59,8 +80,17 @@ def logout(request):
     return redirect('account:login')
 
 
-"""
-Currently, Only super user can log in. Normal user cannot log in because they haven't activated their account through the email verification which will be implemented in the future.
-
-When creating the account model for normal user I have set the is_active field to False and it'll be become True when the user clicks on the link sent to their email.
-"""
+def activate_account(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = Account._default_manager.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, Account.DoesNotExist):
+        user = None
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, 'Your account has been activated!')
+        return redirect('account:login')
+    else:
+        messages.warning(request, 'Activation link is invalid!')
+        return redirect('account:login')

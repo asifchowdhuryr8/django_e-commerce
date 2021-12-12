@@ -1,5 +1,23 @@
 {% extends 'base.html' %} {% load static %} {% block body %}
 
+{% if request.GET.verify == 'email_verification' %}
+<div
+    class="container alert alert-info text-center"
+    role="alert"
+    style="max-width: 1000px; margin: 40px auto"
+>
+    <h1>
+        Thank you for registering! Please check your email to activate your
+        account.
+    </h1>
+    <p>
+        Already Verified your email address?
+        <a href="{% url 'account:login' %}">Login</a>
+    </p>
+</div>
+
+{% else %}
+
 <div class="card" style="max-width: 380px; margin: 40px auto">
     <div class="card-body">
         <h4 class="card-title mb-4">Sign in</h4>
@@ -41,5 +59,4 @@
         Don't have account? <a href="{% url 'account:register' %}">Sign up</a>
     </p>
 </div>
-
-{% endblock body %}
+{% endif %}{% endblock body %}
