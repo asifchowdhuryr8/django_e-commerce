@@ -94,3 +94,9 @@ def activate_account(request, uidb64, token):
     else:
         messages.warning(request, 'Activation link is invalid!')
         return redirect('account:login')
+
+
+@login_required(login_url='account:login')
+def dashboard(request):
+    context = {}
+    return render(request, "account/dashboard.html", context)

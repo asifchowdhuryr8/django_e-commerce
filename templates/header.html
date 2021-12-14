@@ -87,7 +87,7 @@
                                 >Welcome {{user.first_name}}</small
                             >
                             <div>
-                                <a href="#">Dashboard</a>
+                                <a href="{% url 'account:dashboard' %}">Dashboard</a>
                                 <span class="dark-transp"> | </span>
                                 <a href="{% url 'account:logout' %}">Logout</a>
                             </div>
