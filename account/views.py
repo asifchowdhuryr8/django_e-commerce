@@ -3,15 +3,11 @@ from .forms import RegistrationForm
 from .models import Account
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
+from .utils import send_email, get_user
 # Create your views here.
 
 # User Account Activation
-from django.contrib.sites.shortcuts import get_current_site
-from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import EmailMessage
 
 
 def register(request):
@@ -31,17 +27,9 @@ def register(request):
             user.save()
 
             # Send email to the user to activate the account
-            current_site = get_current_site(request)
             subject = 'Activate Your Account'
-            message = render_to_string('account/account_activation_email.html', {
-                'user': user,
-                'domain': current_site,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': default_token_generator.make_token(user),
-            })
-            to_email = email
-            send_mail = EmailMessage(subject, message, to=[to_email])
-            send_mail.send()
+            template = 'account_activation_email'
+            send_email(request, user, email, subject, template)
             return redirect('/account/login/?verify=email_verification&email='+email)
         else:
             messages.info(request, 'An error occurred during registration.')
@@ -81,11 +69,7 @@ def logout(request):
 
 
 def activate_account(request, uidb64, token):
-    try:
-        uid = urlsafe_base64_decode(uidb64).decode()
-        user = Account._default_manager.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, Account.DoesNotExist):
-        user = None
+    user = get_user(uidb64, Account, False)
     if user is not None and default_token_generator.check_token(user, token):
         user.is_active = True
         user.save()
@@ -100,3 +84,58 @@ def activate_account(request, uidb64, token):
 def dashboard(request):
     context = {}
     return render(request, "account/dashboard.html", context)
+
+
+def forgot_password(request):
+    """If user email address exist in the database, then send an email to the user with a link to reset the password. The link uses validate_reset_password_link route to validate the link"""
+    if request.method == "POST":
+        email = request.POST['email']
+        if Account.objects.filter(email=email).exists():
+            user = Account.objects.get(email__exact=email)
+            # Send email to the user to reset the account password
+            subject = 'Reset Password'
+            template = 'account_reset_password_email'
+            send_email(request, user, email, subject, template)
+            messages.success(
+                request, 'An email has been sent to your email address to reset your password.')
+            return redirect('account:login')
+        else:
+            messages.warning(request, 'Account does not exist.')
+            return redirect("account:forgot_password")
+    else:
+        return render(request, "account/forgot_password.html")
+
+
+def validate_reset_password_link(request, uidb64, token):
+    """Store the user id in the session and redirect user to the reset_password page"""
+    user, uid = get_user(uidb64, Account, True)
+    if user is not None and default_token_generator.check_token(user, token):
+        request.session['uid'] = uid    # Store the user id in the session
+        return redirect('account:reset_password')
+    else:
+        messages.warning(request, 'Activation link is invalid or expired!')
+        return redirect('account:forgot_password')
+
+
+def reset_password(request):
+    """Set a new password for the user if he comes from a valid link"""
+    if request.method == "POST":
+        password = request.POST['password']
+        confirm_password = request.POST['confirm_password']
+        if password == confirm_password:
+            # Get the user id from the session which was set in the validate_reset_password_link function
+            uid = request.session['uid']
+            # Get the user from the database using the user id
+            user = Account._default_manager.get(pk=uid)
+            # Set the password. set_password method is provided by Django to create a hashed password.
+            user.set_password(password)
+            user.save()
+            messages.success(
+                request, 'Your password has been changed successfully.')
+            return redirect('account:login')
+        else:
+            messages.warning(
+                request, 'Password and confirm password do not match.')
+            return redirect('account:reset_password')
+    else:
+        return render(request, "account/reset_password.html")
