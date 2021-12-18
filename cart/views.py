@@ -1,7 +1,8 @@
-from django.shortcuts import get_object_or_404, redirect, render, HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from store.models import Product, Variation
 from .models import Cart, CartItem
 from django.core.exceptions import ObjectDoesNotExist
+from .utils import cart_item
 
 
 def get_or_set_session_id(request):
@@ -57,7 +58,8 @@ def add_cart(request, product_id):
             """If a user has already bought a product of this same category then update the quantity. e.g. user bought a shirt (blue+40) then if he want to buy another then update the quantity from the previous cart item"""
             index = existing_variation_item_list.index(
                 product_variation)   # get the index of the number
-            item_id = existing_variation_item_id[index]  # get the id of the cart item
+            # get the id of the cart item
+            item_id = existing_variation_item_id[index]
             cart_item = CartItem.objects.get(
                 product=product, id=item_id)   # get the cart item
             cart_item.quantity += 1
@@ -106,25 +108,12 @@ def remove_cart_item(request, product_id, cart_item_id):
 
 
 def cart(request, total=0, quantity=0, cart_items=None):
-    try:
-        tax = 0
-        grand_total = 0
-        cart = Cart.objects.get(cart_id=get_or_set_session_id(request))
-        # get all the cart items which has same cart id and is active.
-        cart_items = CartItem.objects.filter(cart=cart, is_active=True)
-        for cart_item in cart_items:    # calculate total price and quantity of the cart items
-            total += (cart_item.product.price * cart_item.quantity)
-            quantity += cart_item.quantity
-        tax = (total * 2) / 100  # calculate the 2% tax
-        grand_total = total + tax   # calculate the grand total after tax
-
-    except ObjectDoesNotExist:
-        pass    # do nothing
-    context = {
-        'total': total,
-        'quantity': quantity,
-        'cart_items': cart_items,
-        'tax': tax,
-        'grand_total': grand_total
-    }
+    context = cart_item(request, get_or_set_session_id,
+                        total, quantity, cart_items)
     return render(request, 'cart/cart.html', context)
+
+
+def checkout(request, total=0, quantity=0, cart_items=None):
+    context = cart_item(request, get_or_set_session_id,
+                        total, quantity, cart_items)
+    return render(request, 'cart/checkout.html', context)
