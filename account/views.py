@@ -4,6 +4,8 @@ from .models import Account
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
 from .utils import send_email, get_user
+from cart.models import Cart, CartItem
+from cart.views import get_or_set_session_id
 # Create your views here.
 
 # User Account Activation
@@ -51,6 +53,16 @@ def login(request):
         user = auth.authenticate(email=email, password=password)
 
         if user is not None:    # If user is not None, then the user exists in the database
+            try:
+                cart = Cart.objects.get(cart_id=get_or_set_session_id(request))
+                is_cart_item_exist = CartItem.objects.filter(cart=cart).exists()
+                if is_cart_item_exist:
+                    cart_item = CartItem.objects.filter(cart=cart)
+                    for item in cart_item:
+                        item.user = user
+                        item.save()
+            except:
+                pass
             auth.login(request, user)
             return redirect('category:homepage')
         else:   # If user is None, then the user does not exist in the database

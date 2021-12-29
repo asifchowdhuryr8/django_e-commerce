@@ -3,6 +3,7 @@ from store.models import Product, Variation
 from .models import Cart, CartItem
 from django.core.exceptions import ObjectDoesNotExist
 from .utils import cart_item
+from django.contrib.auth.decorators import login_required
 
 
 def get_or_set_session_id(request):
@@ -113,6 +114,7 @@ def cart(request, total=0, quantity=0, cart_items=None):
     return render(request, 'cart/cart.html', context)
 
 
+@login_required(login_url='account:login')
 def checkout(request, total=0, quantity=0, cart_items=None):
     context = cart_item(request, get_or_set_session_id,
                         total, quantity, cart_items)

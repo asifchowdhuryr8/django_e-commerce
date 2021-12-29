@@ -1,5 +1,6 @@
 from django.db import models
 from store.models import Product, Variation
+from account.models import Account
 
 
 class Cart(models.Model):
@@ -11,10 +12,14 @@ class Cart(models.Model):
 
 
 class CartItem(models.Model):
+    # user field added so that we can know the user who has added the product to the cart
+    user = models.ForeignKey(
+        Account, on_delete=models.CASCADE, null=True, blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     # ManyToManyField is used so that it can handle the situation when one product has multiple variations.
     variation = models.ManyToManyField(Variation, blank=True)
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    cart = models.ForeignKey(
+        Cart, on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.IntegerField()
     is_active = models.BooleanField(default=True)
 
